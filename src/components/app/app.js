@@ -18,14 +18,23 @@ export default class App extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            data: [
-                { label: 'Going to learn React', important: true, like: false, id: 1 },
-                { label: 'That is so good', important: false, like: false, id: 2 },
-                { label: 'I need a break...', important: false, like: false, id: 3 }
-            ],
-            term: '',
-            filter: 'all'
+        const oldState = this.getStateFromStorage();
+        if (!oldState) {
+            this.state = {
+                data: [
+                    { label: 'Going to learn React', important: true, like: false, id: 1 },
+                    { label: 'That is so good', important: false, like: false, id: 2 },
+                    { label: 'I need a break...', important: false, like: false, id: 3 }
+                ],
+                term: '',
+                filter: 'all'
+            }
+
+            this.maxId = 4;
+        } else {
+            this.state = JSON.parse(oldState);
+
+            this.maxId = this.state.data.length + 1;
         }
 
         this.deleteItem = this.deleteItem.bind(this);
@@ -35,7 +44,16 @@ export default class App extends Component {
         this.onUpdateSearch = this.onUpdateSearch.bind(this);
         this.onFilterSelect = this.onFilterSelect.bind(this);
 
-        this.maxId = 4;
+
+    }
+
+    saveStateToStorage() {
+        const serializedState = JSON.stringify(this.state);
+        localStorage.setItem('state', serializedState)
+    }
+
+    getStateFromStorage() {
+        return localStorage.getItem('state')
     }
 
     deleteItem(id) {
@@ -126,6 +144,9 @@ export default class App extends Component {
     }
 
     render() {
+
+        this.saveStateToStorage();
+
         const { data, term, filter } = this.state;
         const liked = data.filter(item => item.like === true).length;
         const allPost = data.length;
